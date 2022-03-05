@@ -119,6 +119,10 @@ namespace veigar
                 }
                 combo::use_e = combo->add_checkbox(myhero->get_model() + ".combo.e", "Use E", true);
                 combo::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
+                auto e_config = combo->add_tab(myhero->get_model() + ".combo.e.config", "E Config");
+                {
+                    combo::e_only_if_w_ready = e_config->add_checkbox(myhero->get_model() + ".combo.e.only_w_ready", "Use E only if W is ready", true);
+                }
                 combo::use_r = combo->add_checkbox(myhero->get_model() + ".combo.r", "Use R", true);
                 combo::use_r->set_texture(myhero->get_spell(spellslot::r)->get_icon_texture());
                 auto r_config = combo->add_tab(myhero->get_model() + ".combo.r.config", "R Config");
@@ -232,6 +236,30 @@ namespace veigar
             if (r->is_ready() && combo::use_r->get_bool())
             {
                 r_logic();
+            }
+
+            if (w->is_ready() && combo::use_w->get_bool())
+            {
+                auto target = target_selector->get_target(w->range(), damage_type::magical);
+
+                if (target != nullptr)
+                {
+                    if (combo::w_auto_on_stun->get_bool())
+                    {
+                        if (w->cast(target, hit_chance::immobile))
+                        {
+                            return;
+                        }
+                    }
+
+                    if (combo::w_auto_dashing->get_bool())
+                    {
+                        if (w->cast(target, hit_chance::dashing))
+                        {
+                            return;
+                        }
+                    }
+                }
             }
 
             if (orbwalker->combo_mode())
@@ -403,7 +431,10 @@ namespace veigar
 
         if (target != nullptr)
         {
-            e->cast(target, get_hitchance(hitchance::e_hitchance));
+            if (w->is_ready() || !combo::e_only_if_w_ready->get_bool())
+            {
+                e->cast(target, get_hitchance(hitchance::e_hitchance));
+            }
         }
     }
 #pragma endregion
