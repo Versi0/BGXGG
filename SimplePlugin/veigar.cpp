@@ -269,14 +269,14 @@ namespace veigar
                     q_logic();
                 }
 
-                if (w->is_ready() && combo::use_w->get_bool())
-                {
-                    w_logic();
-                }
-
                 if (e->is_ready() && combo::use_e->get_bool())
                 {
                     e_logic();
+                }
+
+                if (w->is_ready() && combo::use_w->get_bool())
+                {
+                    w_logic();
                 }
             }
 
