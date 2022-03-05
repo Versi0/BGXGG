@@ -449,7 +449,7 @@ namespace veigar
             {
                 auto pred = r->get_prediction(target, true, r->range() + flash->range());
                 flash->cast(pred.get_cast_position());
-                r->cast(pred.get_cast_position());
+                r->cast(target);
                 return;
             }
         }
