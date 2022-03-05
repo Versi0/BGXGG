@@ -447,8 +447,7 @@ namespace veigar
             auto target = target_selector->get_target(r->range() + flash->range(), damage_type::magical);
             if (target != nullptr && can_use_r_on(target) && target->get_distance(myhero) > r->range() + 50 && r->get_damage(target) > target->get_health())
             {
-                auto pred = r->get_prediction(target, true, r->range() + flash->range());
-                flash->cast(pred.get_cast_position());
+                flash->cast(target);
                 r->cast(target);
                 return;
             }
