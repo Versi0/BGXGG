@@ -19,6 +19,9 @@
     <ClCompile Include="..\plugin_sdk\clipper.cpp">
       <Filter>plugin_sdk</Filter>
     </ClCompile>
+    <ClCompile Include="veigar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\plugin_sdk\cpplinq.h">
@@ -29,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="..\plugin_sdk\clipper.h">
       <Filter>plugin_sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="veigar.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
