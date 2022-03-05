@@ -19,20 +19,14 @@ namespace veigar
 
     TreeTab* main_tab = nullptr;
 
-    namespace draw_settings
-    {
-        TreeEntry* draw_range_q = nullptr;
-        TreeEntry* draw_range_w = nullptr;
-        TreeEntry* draw_range_e = nullptr;
-        TreeEntry* draw_range_r = nullptr;
-        TreeEntry* draw_flash_range = nullptr;
-    }
-
     namespace combo
     {
         TreeEntry* use_q = nullptr;
         TreeEntry* use_w = nullptr;
+        TreeEntry* w_auto_on_stun = nullptr;
+        TreeEntry* w_auto_dashing = nullptr;
         TreeEntry* use_e = nullptr;
+        TreeEntry* e_only_if_w_ready = nullptr;
         TreeEntry* use_r = nullptr;
         TreeEntry* r_flash_above_r_range = nullptr;
         std::map<std::uint32_t, TreeEntry*> r_use_on;
@@ -64,6 +58,22 @@ namespace veigar
     namespace flee
     {
         TreeEntry* use_e;
+    }
+
+    namespace hitchance
+    {
+        TreeEntry* q_hitchance = nullptr;
+        TreeEntry* w_hitchance = nullptr;
+        TreeEntry* e_hitchance = nullptr;
+    }
+
+    namespace draw_settings
+    {
+        TreeEntry* draw_range_q = nullptr;
+        TreeEntry* draw_range_w = nullptr;
+        TreeEntry* draw_range_e = nullptr;
+        TreeEntry* draw_range_r = nullptr;
+        TreeEntry* draw_flash_range = nullptr;
     }
 
     void on_update();
@@ -102,6 +112,11 @@ namespace veigar
                 combo::use_q->set_texture(myhero->get_spell(spellslot::q)->get_icon_texture());
                 combo::use_w = combo->add_checkbox(myhero->get_model() + ".combo.w", "Use W", true);
                 combo::use_w->set_texture(myhero->get_spell(spellslot::w)->get_icon_texture());
+                auto w_config = combo->add_tab(myhero->get_model() + ".combo.w.config", "W Config");
+                {
+                    combo::w_auto_on_stun = w_config->add_checkbox(myhero->get_model() + ".combo.w.stun", "Auto W on stun", true);
+                    combo::w_auto_dashing = w_config->add_checkbox(myhero->get_model() + ".combo.w.dashing", "Auto W dashing", true);
+                }
                 combo::use_e = combo->add_checkbox(myhero->get_model() + ".combo.e", "Use E", true);
                 combo::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
                 combo::use_r = combo->add_checkbox(myhero->get_model() + ".combo.r", "Use R", true);
@@ -154,6 +169,13 @@ namespace veigar
             {
                 flee::use_e = flee->add_checkbox(myhero->get_model() + ".flee.e", "Use E", true);
                 flee::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
+            }
+
+            auto hitchance = main_tab->add_tab(myhero->get_model() + ".hitchance", "Hitchance Settings");
+            {
+                hitchance::q_hitchance = hitchance->add_combobox(myhero->get_model() + ".hitchance.q", "Hitchance Q", { {"Low",nullptr},{"Medium",nullptr },{"High", nullptr},{"Very High",nullptr} }, 2);
+                hitchance::w_hitchance = hitchance->add_combobox(myhero->get_model() + ".hitchance.w", "Hitchance W", { {"Low",nullptr},{"Medium",nullptr },{"High", nullptr},{"Very High",nullptr} }, 2);
+                hitchance::e_hitchance = hitchance->add_combobox(myhero->get_model() + ".hitchance.e", "Hitchance E", { {"Low",nullptr},{"Medium",nullptr },{"High", nullptr},{"Very High",nullptr} }, 1);
             }
 
             auto draw_settings = main_tab->add_tab(myhero->get_model() + ".draw", "Drawings Settings");
@@ -357,7 +379,7 @@ namespace veigar
 
         if (target != nullptr)
         {
-            q->cast(target, hit_chance::high);
+            q->cast(target, get_hitchance(hitchance::q_hitchance));
         }
     }
 #pragma endregion
@@ -369,7 +391,7 @@ namespace veigar
 
         if (target != nullptr)
         {
-            w->cast(target, hit_chance::high);
+            w->cast(target, get_hitchance(hitchance::w_hitchance));
         }
     }
 #pragma endregion
@@ -381,7 +403,7 @@ namespace veigar
 
         if (target != nullptr)
         {
-            e->cast(target, hit_chance::medium);
+            e->cast(target, get_hitchance(hitchance::e_hitchance));
         }
     }
 #pragma endregion
