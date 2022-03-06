@@ -27,6 +27,7 @@ namespace veigar
         TreeEntry* w_auto_dashing = nullptr;
         TreeEntry* use_e = nullptr;
         TreeEntry* e_only_if_w_ready = nullptr;
+        TreeEntry* e_use_prediction = nullptr;
         TreeEntry* use_r = nullptr;
         TreeEntry* r_flash_above_r_range = nullptr;
         std::map<std::uint32_t, TreeEntry*> r_use_on;
@@ -99,9 +100,8 @@ namespace veigar
         q = plugin_sdk->register_spell(spellslot::q, 950);
         q->set_skillshot(0.25f, 140.0f, 2200.0f, { collisionable_objects::yasuo_wall, collisionable_objects::heroes, collisionable_objects::minions }, skillshot_type::skillshot_line);
         w = plugin_sdk->register_spell(spellslot::w, 900);
-        w->set_skillshot(0.25f, 240.0f, 0.0f, { }, skillshot_type::skillshot_circle);
+        w->set_skillshot(0.25f, 240.0f, 400.0f, { }, skillshot_type::skillshot_circle);
         e = plugin_sdk->register_spell(spellslot::e, 725);
-        e->set_skillshot(0.25f, 400.0f, 0.0f, { }, skillshot_type::skillshot_circle);
         r = plugin_sdk->register_spell(spellslot::r, 650);
 
         if (myhero->get_spell(spellslot::summoner1)->get_spell_data()->get_name_hash() == spell_hash("SummonerFlash"))
@@ -112,6 +112,7 @@ namespace veigar
         main_tab = menu->create_tab("veigar", "Veigar");
         main_tab->set_assigned_texture(myhero->get_square_icon_portrait());
         {
+            main_tab->add_separator(myhero->get_model() + ".info", "ZEDith Prediction is recommended");
             auto combo = main_tab->add_tab(myhero->get_model() + ".combo", "Combo Settings");
             {
                 combo::use_q = combo->add_checkbox(myhero->get_model() + ".combo.q", "Use Q", true);
@@ -128,6 +129,7 @@ namespace veigar
                 auto e_config = combo->add_tab(myhero->get_model() + ".combo.e.config", "E Config");
                 {
                     combo::e_only_if_w_ready = e_config->add_checkbox(myhero->get_model() + ".combo.e.only_w_ready", "Use E only if W is ready", true);
+                    combo::e_use_prediction = e_config->add_checkbox(myhero->get_model() + ".combo.e.prediction", "Use Prediction on E", false);
                 }
                 combo::use_r = combo->add_checkbox(myhero->get_model() + ".combo.r", "Use R", true);
                 combo::use_r->set_texture(myhero->get_spell(spellslot::r)->get_icon_texture());
@@ -277,14 +279,14 @@ namespace veigar
 
             if (orbwalker->combo_mode())
             {
-                if (q->is_ready() && combo::use_q->get_bool())
-                {
-                    q_logic();
-                }
-
                 if (e->is_ready() && combo::use_e->get_bool())
                 {
                     e_logic();
+                }
+
+                if (q->is_ready() && combo::use_q->get_bool())
+                {
+                    q_logic();
                 }
 
                 if (w->is_ready() && combo::use_w->get_bool())
@@ -446,7 +448,14 @@ namespace veigar
         {
             if (w->is_ready() || !combo::e_only_if_w_ready->get_bool())
             {
-                e->cast(target, get_hitchance(hitchance::e_hitchance));
+                if (combo::e_use_prediction->get_bool())
+                {
+                    e->cast(target, get_hitchance(hitchance::e_hitchance));
+                }
+                else
+                {
+                    e->cast(target);
+                }
             }
         }
     }
