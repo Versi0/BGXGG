@@ -100,7 +100,7 @@ namespace veigar
         q = plugin_sdk->register_spell(spellslot::q, 950);
         q->set_skillshot(0.25f, 140.0f, 2200.0f, { collisionable_objects::yasuo_wall, collisionable_objects::heroes, collisionable_objects::minions }, skillshot_type::skillshot_line);
         w = plugin_sdk->register_spell(spellslot::w, 900);
-        w->set_skillshot(0.25f, 240.0f, 400.0f, { }, skillshot_type::skillshot_circle);
+        w->set_skillshot(0.25f, 240.0f, 0.0f, { }, skillshot_type::skillshot_circle);
         e = plugin_sdk->register_spell(spellslot::e, 725);
         r = plugin_sdk->register_spell(spellslot::r, 650);
 
@@ -508,7 +508,7 @@ namespace veigar
             draw_manager->add_circle(myhero->get_position(), flash->range(), FLASH_DRAW_COLOR);
 
         for (auto& enemy : entitylist->get_enemy_heroes()) {
-            if (!enemy->is_dead() && enemy->is_visible_on_screen() && r->is_ready())
+            if (!enemy->is_dead() && enemy->is_valid() && enemy->is_hpbar_recently_rendered() && r->is_ready())
             {
                 draw_dmg_rl(enemy, r->get_damage(enemy), 4294929002);
                 if (r->get_damage(enemy) > enemy->get_health())
