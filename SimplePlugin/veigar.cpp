@@ -60,6 +60,11 @@ namespace veigar
         TreeEntry* use_e;
     }
 
+    namespace antigapclose
+    {
+        TreeEntry* use_e;
+    }
+
     namespace hitchance
     {
         TreeEntry* q_hitchance = nullptr;
@@ -79,6 +84,7 @@ namespace veigar
     void on_update();
     void on_draw();
 
+    void anti_gapcloser(game_object_script sender, antigapcloser::antigapcloser_args* args);
     inline void draw_dmg_rl(game_object_script target, float damage, unsigned long color);
     bool can_use_r_on(game_object_script target);
     hit_chance get_hitchance(TreeEntry* entry);
@@ -175,6 +181,12 @@ namespace veigar
                 flee::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
             }
 
+            auto antigapclose = main_tab->add_tab(myhero->get_model() + ".antigapclose", "Anti Gap Close");
+            {
+                antigapclose::use_e = antigapclose->add_checkbox(myhero->get_model() + ".antigapclose.e", "Use E", true);
+                antigapclose::use_e->set_texture(myhero->get_spell(spellslot::e)->get_icon_texture());
+            }
+
             auto hitchance = main_tab->add_tab(myhero->get_model() + ".hitchance", "Hitchance Settings");
             {
                 hitchance::q_hitchance = hitchance->add_combobox(myhero->get_model() + ".hitchance.q", "Hitchance Q", { {"Low",nullptr},{"Medium",nullptr },{"High", nullptr},{"Very High",nullptr} }, 2);
@@ -205,7 +217,7 @@ namespace veigar
 
         event_handler<events::on_update>::add_callback(on_update);
         event_handler<events::on_draw>::add_callback(on_draw);
-
+        antigapcloser::add_event_handler(anti_gapcloser);
     }
 
     void unload()
@@ -222,6 +234,7 @@ namespace veigar
 
         event_handler<events::on_update>::remove_handler(on_update);
         event_handler<events::on_draw>::remove_handler(on_draw);
+        antigapcloser::remove_event_handler(anti_gapcloser);
     }
 
     void on_update()
@@ -304,7 +317,7 @@ namespace veigar
                 }
             }
 
-            if (orbwalker->mixed_mode() || orbwalker->lane_clear_mode())
+            if (orbwalker->mixed_mode() || orbwalker->last_hit_mode() || orbwalker->lane_clear_mode())
             {
                 auto lane_minions = entitylist->get_enemy_minions();
                 auto monsters = entitylist->get_jugnle_mobs_minions();
@@ -496,6 +509,13 @@ namespace veigar
                     draw_manager->add_text_on_screen(pos + vector(20, 0), 4294929002 , 32, "KILLABLE");
                 }
             }
+        }
+    }
+
+    void anti_gapcloser(game_object_script sender, antigapcloser::antigapcloser_args* args) {
+        if (antigapclose::use_e->get_bool())
+        {
+            e->cast(args->end_position);
         }
     }
 
